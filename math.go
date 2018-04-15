@@ -1,6 +1,7 @@
 package spine
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -9,6 +10,15 @@ type Color struct{ R, G, B, A float32 }
 func (c Color) WithAlpha(a float32) Color {
 	c.A = a
 	return c
+}
+
+func u8(v float32) uint8 {
+	if v <= 0 {
+		return 0
+	} else if v >= 1 {
+		return 0xFF
+	}
+	return uint8(v * 0xFF)
 }
 
 func u32(v float32) uint32 {
@@ -20,9 +30,8 @@ func u32(v float32) uint32 {
 	return uint32(v * 0xFFFF)
 }
 
-func (c Color) RGBA() (r, g, b, a uint32) {
-	return u32(c.R), u32(c.G), u32(c.B), u32(c.A)
-}
+func (c Color) RGBA() (r, g, b, a uint32) { return u32(c.R), u32(c.G), u32(c.B), u32(c.A) }
+
 func (c Color) Float32() (r, g, b, a float32) { return c.R, c.G, c.B, c.A }
 func (c Color) Float64() (r, g, b, a float64) {
 	return float64(c.R), float64(c.G), float64(c.B), float64(c.A)
@@ -33,6 +42,9 @@ func (c Color) RGB64() (r, g, b float64) {
 }
 func (c Color) RGBA64() (r, g, b, a float64) {
 	return float64(c.R), float64(c.G), float64(c.B), float64(c.A)
+}
+func (c Color) String() string {
+	return fmt.Sprintf("RGBA{%.2f,%.2f,%.2f,%.2f}", c.R, c.G, c.B, c.A)
 }
 
 func abs(x float32) float32 {
@@ -75,8 +87,8 @@ func lerpAngle(a, b, p float32) float32 {
 
 func lerpVector(a, b Vector, p float32) Vector {
 	return Vector{
-		a.X*(1-p) + b.X*p,
-		a.Y*(1-p) + b.Y*p,
+		lerp(a.X, b.X, p),
+		lerp(a.Y, b.Y, p),
 	}
 }
 
@@ -89,9 +101,9 @@ func lerpAngleVector(a, b Vector, p float32) Vector {
 
 func lerpColor(a, b Color, p float32) Color {
 	return Color{
-		a.R*(1-p) + b.R*p,
-		a.G*(1-p) + b.G*p,
-		a.B*(1-p) + b.B*p,
-		a.A*(1-p) + b.A*p,
+		lerp(a.R, b.R, p),
+		lerp(a.G, b.G, p),
+		lerp(a.B, b.B, p),
+		lerp(a.A, b.A, p),
 	}
 }

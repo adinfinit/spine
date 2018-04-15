@@ -18,3 +18,4 @@ Spine is a Go implementation of Spine Runtime.
 - [ ] IK Constraint
 - [ ] Path Constraint
 - [ ] Atlas
+- [ ] TODO check for missing attachments

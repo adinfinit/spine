@@ -10,6 +10,7 @@ import (
 func TestSkeletonUpdateTransform(t *testing.T) {
 	data, err := ReadJSON(strings.NewReader(`{
 		"skeleton": {"width": 100, "height": 100},
+		"skins": { "default": {} },
 		"bones": [
 			{ "name": "root", "y": 10},
 			{ "name": "U", "parent": "root", "y": 10 },
@@ -40,7 +41,7 @@ func TestSkeletonUpdateTransform(t *testing.T) {
 	testPoint(t, Vector{0, 45}, skeleton.FindBone("UUUSU").World.Transform(V0))
 }
 
-func TestAnimate(t *testing.T) {
+func TestAnimateTransform(t *testing.T) {
 	data, err := ReadJSON(strings.NewReader(`{
 		"skeleton": {"width": 100, "height": 100},
 		"bones": [
@@ -51,6 +52,7 @@ func TestAnimate(t *testing.T) {
 			{ "name": "UUUC", "parent": "UUU", "rotation": 90 },
 			{ "name": "UUUCU", "parent": "UUUC", "y": 10 }
 		],
+		"skins": { "default": {} },
 		"animations": {
 			"run": {
 				"bones": {
@@ -126,6 +128,84 @@ func TestAnimate(t *testing.T) {
 	testPoint(t, Vector{0, 25}, uuucu.World.Transform(V0))
 }
 
+func TestAnimateColor(t *testing.T) {
+	data, err := ReadJSON(strings.NewReader(`{
+		"skeleton": {"width": 100, "height": 100},
+		"bones": [
+			{ "name": "root", "y": 10}
+		],
+		"slots": [
+			{ "name": "star", "bone": "root", "attachment": "star", "color": "ff000000"}
+		],
+		"skins": {
+			"default": {
+				"star": {
+					"star": {"width": 10, "height": 10}
+				}
+			}
+		},
+		"animations": {
+			"run": {
+				"slots": {
+					"star": {
+						"color": [
+							{ "time": 0, "color": "ffffff" },
+							{ "time": 1, "color": "ff00ff80" },
+							{ "time": 2, "color": "0000ff00" }
+						]
+					}
+				}
+			}
+		}
+	}`))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	skeleton := NewSkeleton(data)
+	skeleton.Update()
+
+	slot := skeleton.FindSlot("star")
+	if slot == nil {
+		t.Fatal("unable to find slot")
+	}
+	testColor(t, Color{1, 0, 0, 0}, slot.Color)
+
+	animation := skeleton.Data.Animations[0]
+	fmt.Println(animation.Timelines[0])
+
+	animation.Apply(skeleton, 0, true)
+	skeleton.Update()
+
+	testColor(t, Color{1, 1, 1, 1}, slot.Color)
+
+	animation.Apply(skeleton, 0.5, true)
+	skeleton.Update()
+
+	testColor(t, Color{1, 0.5, 1, 0.75}, slot.Color)
+
+	animation.Apply(skeleton, 1.0, true)
+	skeleton.Update()
+
+	testColor(t, Color{1, 0, 1, 0.5}, slot.Color)
+
+	animation.Apply(skeleton, 1.5, true)
+	skeleton.Update()
+
+	testColor(t, Color{0.5, 0, 1, 0.25}, slot.Color)
+
+	animation.Apply(skeleton, 1.99999, true)
+	skeleton.Update()
+
+	testColor(t, Color{0, 0, 1, 0.0}, slot.Color)
+
+	animation.Apply(skeleton, 2.5, true)
+	skeleton.Update()
+
+	testColor(t, Color{1, 0.5, 1, 0.75}, slot.Color)
+}
+
 func TestTransform(t *testing.T) {
 	x := NewTransform()
 	x.Translate.Y = 10
@@ -139,5 +219,14 @@ func testPoint(t *testing.T, exp, got Vector) {
 	t.Helper()
 	if got.Sub(exp).Len() > 0.001 {
 		t.Errorf("exp %v got %v", exp, got)
+	}
+}
+
+func testColor(t *testing.T, exp, got Color) {
+	t.Helper()
+
+	delta := abs(exp.R-got.R) + abs(exp.G-got.G) + abs(exp.B-got.B) + abs(exp.A-got.A)
+	if delta > 0.01 {
+		t.Errorf("delta %v: exp %v got %v", delta, exp, got)
 	}
 }

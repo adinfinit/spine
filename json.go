@@ -499,6 +499,15 @@ func (skel *SkeletonData) load(obj *object) error {
 		return skel.Animations[i].Name < skel.Animations[k].Name
 	})
 
+	// TODO: sanity checks
+
+	if len(skel.Skins) == 0 {
+		return errors.New("no skins defined")
+	}
+	if skel.DefaultSkin == nil {
+		skel.DefaultSkin = skel.Skins[0]
+	}
+
 	return nil
 }
 
@@ -786,6 +795,7 @@ func (obj *object) Bool(key string, def bool) bool {
 }
 
 func (obj *object) Color(key string, def Color) Color {
+	//TODO: error handling
 	if any, ok := obj.Any(key); ok {
 		if str, ok := any.(string); ok {
 			color := def
@@ -815,16 +825,18 @@ func (obj *object) Color(key string, def Color) Color {
 }
 
 func parseHex1(s string) float32 {
-	v, err := strconv.ParseInt(s, 16, 8)
+	v, err := strconv.ParseUint(s, 16, 8)
 	if err != nil {
+		panic(err)
 		return 1
 	}
 	return float32(v) / 0xF
 }
 
 func parseHex2(s string) float32 {
-	v, err := strconv.ParseInt(s, 16, 8)
+	v, err := strconv.ParseUint(s, 16, 8)
 	if err != nil {
+		panic(err)
 		return 1
 	}
 	return float32(v) / 0xFF
