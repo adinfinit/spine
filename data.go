@@ -15,7 +15,7 @@ type SkeletonData struct {
 
 	// IKConstraints        []*IKConstraintData
 	TransformConstraints []*TransformConstraintData
-	// PathConstraints      []*PathConstraint
+	// PathConstraints      []*PathConstraintData
 }
 
 func (skel *SkeletonData) FindBone(name string) *BoneData {

@@ -9,8 +9,12 @@ Spine is a Go implementation of Spine Runtime.
 # TODO
 
 - [ ] Reset pose properly
-- [ ] Pose blending
-- [ ] IK
-- [ ] Constraints
+- [ ] Path attachment
+- [ ] Clipping attachment
 - [ ] EventTimeline
+- [ ] Bounding Box calculations
+- [ ] Linked Mesh
+- [ ] Pose blending
+- [ ] IK Constraint
+- [ ] Path Constraint
 - [ ] Atlas

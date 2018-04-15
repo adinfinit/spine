@@ -24,6 +24,9 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 	return u32(c.R), u32(c.G), u32(c.B), u32(c.A)
 }
 func (c Color) Float32() (r, g, b, a float32) { return c.R, c.G, c.B, c.A }
+func (c Color) Float64() (r, g, b, a float64) {
+	return float64(c.R), float64(c.G), float64(c.B), float64(c.A)
+}
 
 func (c Color) RGB64() (r, g, b float64) {
 	return float64(c.R), float64(c.G), float64(c.B)

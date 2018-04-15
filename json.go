@@ -149,59 +149,59 @@ func (skel *SkeletonData) load(obj *object) error {
 				attachName := attachInfo.String("name", attachmentName)
 				switch attachType {
 				case "region":
-					region := &RegionAttachment{}
-					region.Name = attachName
-					region.Path = attachInfo.String("path", "")
-					region.Size.X = attachInfo.Float("width", 0)
-					region.Size.Y = attachInfo.Float("height", 0)
-					region.Local = attachInfo.Transform()
-					region.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach := &RegionAttachment{}
+					attach.Name = attachName
+					attach.Path = attachInfo.String("path", "")
+					attach.Size.X = attachInfo.Float("width", 0)
+					attach.Size.Y = attachInfo.Float("height", 0)
+					attach.Local = attachInfo.Transform()
+					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
 
-					skin.AddAttachment(slot.Index, attachmentName, region)
+					skin.AddAttachment(slot.Index, attachmentName, attach)
 				case "point":
-					point := &PointAttachment{}
-					point.Name = attachName
-					point.Local = attachInfo.Transform()
-					point.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach := &PointAttachment{}
+					attach.Name = attachName
+					attach.Local = attachInfo.Transform()
+					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
 
-					skin.AddAttachment(slot.Index, attachmentName, point)
+					skin.AddAttachment(slot.Index, attachmentName, attach)
 				case "mesh":
-					mesh := &MeshAttachment{}
-					mesh.Name = attachName
-					mesh.Path = attachInfo.String("path", "")
-					mesh.Size.X = attachInfo.Float("width", 0)
-					mesh.Size.Y = attachInfo.Float("height", 0)
-					mesh.Local = attachInfo.Transform()
-					mesh.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach := &MeshAttachment{}
+					attach.Name = attachName
+					attach.Path = attachInfo.String("path", "")
+					attach.Size.X = attachInfo.Float("width", 0)
+					attach.Size.Y = attachInfo.Float("height", 0)
+					attach.Local = attachInfo.Transform()
+					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
 
 					triangles := attachInfo.Ints("triangles")
-					mesh.Triangles = make([][3]int, len(triangles)/3)
-					for i := range mesh.Triangles {
-						mesh.Triangles[i] = [3]int{triangles[i*3], triangles[i*3+1], triangles[i*3+2]}
+					attach.Triangles = make([][3]int, len(triangles)/3)
+					for i := range attach.Triangles {
+						attach.Triangles[i] = [3]int{triangles[i*3], triangles[i*3+1], triangles[i*3+2]}
 					}
 
 					edges := attachInfo.Ints("edges")
-					mesh.Edges = make([][2]int, len(edges)/2)
-					for i := range mesh.Edges {
-						mesh.Edges[i] = [2]int{edges[i*2], edges[i*2+1]}
+					attach.Edges = make([][2]int, len(edges)/2)
+					for i := range attach.Edges {
+						attach.Edges[i] = [2]int{edges[i*2], edges[i*2+1]}
 					}
 
 					uvs := attachInfo.Floats("uvs")
 					vertices := attachInfo.Floats("vertices")
-					mesh.Weighted = len(vertices) > len(uvs)
-					mesh.UV = make([]Vector, len(uvs)/2)
-					for i := range mesh.UV {
-						mesh.UV[i] = Vector{uvs[i*2], uvs[i*2+1]}
+					attach.Weighted = len(vertices) > len(uvs)
+					attach.UV = make([]Vector, len(uvs)/2)
+					for i := range attach.UV {
+						attach.UV[i] = Vector{uvs[i*2], uvs[i*2+1]}
 					}
 					//TODO: error checks for invalid vertices array
 
-					mesh.Hull = attachInfo.Int("hull", 0)
+					attach.Hull = attachInfo.Int("hull", 0)
 
-					if mesh.Weighted {
-						mesh.Vertices = make([]Vertex, len(mesh.UV))
+					if attach.Weighted {
+						attach.Vertices = make([]Vertex, len(attach.UV))
 						k := 0
-						for i := range mesh.Vertices {
-							vertex := &mesh.Vertices[i]
+						for i := range attach.Vertices {
+							vertex := &attach.Vertices[i]
 							boneCount := int(vertices[k])
 							k++
 							vertex.Bindings = make([]VertexBinding, boneCount)
@@ -211,23 +211,64 @@ func (skel *SkeletonData) load(obj *object) error {
 								bind.Position = Vector{vertices[k+1], vertices[k+2]}
 								bind.Weight = vertices[k+3]
 								k += 4
-								mesh.BindingCount++
+								attach.BindingCount++
 							}
 						}
 					} else {
-						mesh.Vertices = make([]Vertex, len(vertices)/2)
-						for i := range mesh.Vertices {
-							mesh.Vertices[i].Position = Vector{vertices[i*2], vertices[i*2+1]}
-							mesh.BindingCount++
+						attach.Vertices = make([]Vertex, len(vertices)/2)
+						for i := range attach.Vertices {
+							attach.Vertices[i].Position = Vector{vertices[i*2], vertices[i*2+1]}
+							attach.BindingCount++
 						}
 					}
 
-					if len(mesh.Vertices) != len(mesh.UV) {
+					if len(attach.Vertices) != len(attach.UV) {
 						errors.New("vertices and uv len mismatch")
 					}
-					skin.AddAttachment(slot.Index, attachmentName, mesh)
+					skin.AddAttachment(slot.Index, attachmentName, attach)
+				case "boundingbox":
+					attach := &BoundingBoxAttachment{}
+					attach.Name = attachName
+					attach.Color = attachInfo.Color("color", Color{0x60 / 0xFF, 0xF0 / 0xFF, 0, 1})
+
+					vertexCount := attachInfo.Int("vertexCount", 0)
+					vertices := attachInfo.Floats("vertices")
+					if vertexCount <= 0 {
+						vertexCount = len(vertices)
+					}
+
+					attach.Weighted = len(vertices) > vertexCount*2
+					if attach.Weighted {
+						attach.Vertices = make([]Vertex, vertexCount)
+						k := 0
+						for i := range attach.Vertices {
+							vertex := &attach.Vertices[i]
+							boneCount := int(vertices[k])
+							k++
+							vertex.Bindings = make([]VertexBinding, boneCount)
+							for l := range vertex.Bindings {
+								bind := &vertex.Bindings[l]
+								bind.Bone = int(vertices[k])
+								bind.Position = Vector{vertices[k+1], vertices[k+2]}
+								bind.Weight = vertices[k+3]
+								k += 4
+								attach.BindingCount++
+							}
+						}
+					} else {
+						attach.Vertices = make([]Vertex, len(vertices)/2)
+						for i := range attach.Vertices {
+							attach.Vertices[i].Position = Vector{vertices[i*2], vertices[i*2+1]}
+							attach.BindingCount++
+						}
+					}
+
+					if len(attach.Vertices) != vertexCount {
+						errors.New("vertices and vertexCount mismatch")
+					}
+					skin.AddAttachment(slot.Index, attachmentName, attach)
 				default:
-					errors.New("unhandled attachment type: " + attachType)
+					return errors.New("unhandled attachment type: " + attachType)
 				}
 			}
 		}

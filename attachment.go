@@ -1,7 +1,5 @@
 package spine
 
-import "fmt"
-
 type Attachment interface {
 	GetName() string
 }
@@ -14,7 +12,13 @@ type RegionAttachment struct {
 	Color Color
 }
 
-func (attachment *RegionAttachment) GetName() string { return attachment.Name }
+func (attach *RegionAttachment) GetName() string { return attach.Name }
+func (attach *RegionAttachment) GetImage() string {
+	if attach.Path != "" {
+		return attach.Path
+	}
+	return attach.Name
+}
 
 type PointAttachment struct {
 	Name  string
@@ -22,49 +26,62 @@ type PointAttachment struct {
 	Color Color
 }
 
-func (attachment *PointAttachment) GetName() string { return attachment.Name }
+func (attach *PointAttachment) GetName() string { return attach.Name }
+
+type BoundingBoxAttachment struct{ VertexAttachment }
 
 type MeshAttachment struct {
-	Name         string
-	Path         string
-	Local        Transform
-	Size         Vector
-	Hull         int
-	UV           []Vector
-	Vertices     []Vertex
-	Triangles    [][3]int
-	Edges        [][2]int
-	Color        Color
-	Weighted     bool
-	BindingCount int
+	VertexAttachment
+
+	Hull      int
+	UV        []Vector
+	Triangles [][3]int
+	Edges     [][2]int
 }
 
-func (attachment *MeshAttachment) GetName() string { return attachment.Name }
+type VertexAttachment struct {
+	Name  string
+	Path  string
+	Local Transform
+	Size  Vector
+	Color Color
 
-func (mesh *MeshAttachment) CalculateWorldVertices(skel *Skeleton, slot *Slot) []Vector {
-	vertices := make([]Vector, len(mesh.Vertices))
-	if !mesh.Weighted {
-		final := slot.Bone.World.Mul(mesh.Local.Affine())
+	Weighted     bool
+	BindingCount int
+	Vertices     []Vertex
+}
+
+func (attach *VertexAttachment) GetName() string { return attach.Name }
+func (attach *VertexAttachment) GetImage() string {
+	if attach.Path != "" {
+		return attach.Path
+	}
+	return attach.Name
+}
+
+func (attach *VertexAttachment) CalculateWorldVertices(skel *Skeleton, slot *Slot) []Vector {
+	vertices := make([]Vector, len(attach.Vertices))
+	if !attach.Weighted {
+		final := slot.Bone.World.Mul(attach.Local.Affine())
 		if len(slot.Deform) == 0 {
-			for i := range mesh.Vertices {
-				p := mesh.Vertices[i].Position
+			for i := range attach.Vertices {
+				p := attach.Vertices[i].Position
 				vertices[i] = final.Transform(p)
 			}
 		} else {
 			if len(vertices) != len(slot.Deform) {
-				fmt.Println(len(vertices), len(slot.Deform))
 				panic("invalid deform")
 			}
-			for i := range mesh.Vertices {
-				p := mesh.Vertices[i].Position
+			for i := range attach.Vertices {
+				p := attach.Vertices[i].Position
 				vertices[i] = final.Transform(p.Add(slot.Deform[i]))
 			}
 		}
 	} else {
 		bones := skel.Bones
 		if len(slot.Deform) == 0 {
-			for i := range mesh.Vertices {
-				v := &mesh.Vertices[i]
+			for i := range attach.Vertices {
+				v := &attach.Vertices[i]
 				var w Vector
 				for _, binding := range v.Bindings {
 					bone := bones[binding.Bone]
@@ -75,8 +92,8 @@ func (mesh *MeshAttachment) CalculateWorldVertices(skel *Skeleton, slot *Slot) [
 			}
 		} else {
 			deform, di := slot.Deform, 0
-			for i := range mesh.Vertices {
-				v := &mesh.Vertices[i]
+			for i := range attach.Vertices {
+				v := &attach.Vertices[i]
 				var w Vector
 				for _, binding := range v.Bindings {
 					bone := bones[binding.Bone]
