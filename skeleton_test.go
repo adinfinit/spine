@@ -170,7 +170,7 @@ func TestAnimateColor(t *testing.T) {
 	if slot == nil {
 		t.Fatal("unable to find slot")
 	}
-	testColor(t, Color{1, 0, 0, 0}, slot.Color)
+	testColor(t, RGBA(1, 0, 0, 0), slot.Color)
 
 	animation := skeleton.Data.Animations[0]
 	fmt.Println(animation.Timelines[0])
@@ -178,32 +178,32 @@ func TestAnimateColor(t *testing.T) {
 	animation.Apply(skeleton, 0, true)
 	skeleton.Update()
 
-	testColor(t, Color{1, 1, 1, 1}, slot.Color)
+	testColor(t, RGBA(1, 1, 1, 1), slot.Color)
 
 	animation.Apply(skeleton, 0.5, true)
 	skeleton.Update()
 
-	testColor(t, Color{1, 0.5, 1, 0.75}, slot.Color)
+	testColor(t, RGBA(1, 0.5, 1, 0.75), slot.Color)
 
 	animation.Apply(skeleton, 1.0, true)
 	skeleton.Update()
 
-	testColor(t, Color{1, 0, 1, 0.5}, slot.Color)
+	testColor(t, RGBA(1, 0, 1, 0.5), slot.Color)
 
 	animation.Apply(skeleton, 1.5, true)
 	skeleton.Update()
 
-	testColor(t, Color{0.5, 0, 1, 0.25}, slot.Color)
+	testColor(t, RGBA(0.5, 0, 1, 0.25), slot.Color)
 
 	animation.Apply(skeleton, 1.99999, true)
 	skeleton.Update()
 
-	testColor(t, Color{0, 0, 1, 0.0}, slot.Color)
+	testColor(t, RGBA(0, 0, 1, 0.0), slot.Color)
 
 	animation.Apply(skeleton, 2.5, true)
 	skeleton.Update()
 
-	testColor(t, Color{1, 0.5, 1, 0.75}, slot.Color)
+	testColor(t, RGBA(1, 0.5, 1, 0.75), slot.Color)
 }
 
 func TestTransform(t *testing.T) {

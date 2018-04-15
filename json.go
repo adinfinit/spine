@@ -48,7 +48,7 @@ func (skel *SkeletonData) load(obj *object) error {
 		bone.Length = info.Float("length", 1)
 		bone.Local = info.Transform()
 
-		bone.Color = info.Color("color", Color{0x98 / 0xFF, 0x98 / 0xFF, 0x98 / 0xFF, 0xFF / 0xFF})
+		bone.Color = info.Color("color", RGBA(0x98/0xFF, 0x98/0xFF, 0x98/0xFF, 0xFF/0xFF))
 
 		bone.Inherit = parseInherit(info.String("transform", ""))
 		if info.Has("inheritScale") {
@@ -76,8 +76,8 @@ func (skel *SkeletonData) load(obj *object) error {
 		slot.Name = slotInfo.String("name", "")
 		slot.Bone = skel.FindBone(slotInfo.String("bone", ""))
 		slot.Attachment = slotInfo.String("attachment", "")
-		slot.Color = slotInfo.Color("color", Color{1, 1, 1, 1})
-		slot.Dark = slotInfo.Color("dark", Color{1, 1, 1, 1})
+		slot.Color = slotInfo.Color("color", RGBA(1, 1, 1, 1))
+		slot.Dark = slotInfo.Color("dark", RGBA(1, 1, 1, 1))
 		slot.Blend = parseBlendMode(slotInfo.String("blend", ""))
 	}
 
@@ -155,14 +155,14 @@ func (skel *SkeletonData) load(obj *object) error {
 					attach.Size.X = attachInfo.Float("width", 0)
 					attach.Size.Y = attachInfo.Float("height", 0)
 					attach.Local = attachInfo.Transform()
-					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach.Color = attachInfo.Color("color", RGBA(1, 1, 1, 1))
 
 					skin.AddAttachment(slot.Index, attachmentName, attach)
 				case "point":
 					attach := &PointAttachment{}
 					attach.Name = attachName
 					attach.Local = attachInfo.Transform()
-					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach.Color = attachInfo.Color("color", RGBA(1, 1, 1, 1))
 
 					skin.AddAttachment(slot.Index, attachmentName, attach)
 				case "mesh":
@@ -172,7 +172,7 @@ func (skel *SkeletonData) load(obj *object) error {
 					attach.Size.X = attachInfo.Float("width", 0)
 					attach.Size.Y = attachInfo.Float("height", 0)
 					attach.Local = attachInfo.Transform()
-					attach.Color = attachInfo.Color("color", Color{1, 1, 1, 1})
+					attach.Color = attachInfo.Color("color", RGBA(1, 1, 1, 1))
 
 					triangles := attachInfo.Ints("triangles")
 					attach.Triangles = make([][3]int, len(triangles)/3)
@@ -229,7 +229,7 @@ func (skel *SkeletonData) load(obj *object) error {
 				case "boundingbox":
 					attach := &BoundingBoxAttachment{}
 					attach.Name = attachName
-					attach.Color = attachInfo.Color("color", Color{0x60 / 0xFF, 0xF0 / 0xFF, 0, 1})
+					attach.Color = attachInfo.Color("color", RGBA(0x60/0xFF, 0xF0/0xFF, 0, 1))
 
 					vertexCount := attachInfo.Int("vertexCount", 0)
 					vertices := attachInfo.Floats("vertices")
@@ -349,7 +349,7 @@ func (skel *SkeletonData) load(obj *object) error {
 				anim.Timelines = append(anim.Timelines, timeline)
 				for _, info := range slotTimelines.List("color") {
 					info.addTimeStep(&timeline.CurveTimeline)
-					color := info.Color("color", Color{1, 1, 1, 1})
+					color := info.Color("color", RGBA(1, 1, 1, 1))
 					timeline.Color = append(timeline.Color, color)
 				}
 			}
@@ -360,8 +360,8 @@ func (skel *SkeletonData) load(obj *object) error {
 				anim.Timelines = append(anim.Timelines, timeline)
 				for _, info := range slotTimelines.List("twoColor") {
 					info.addTimeStep(&timeline.CurveTimeline)
-					light := info.Color("light", Color{1, 1, 1, 1})
-					dark := info.Color("dark", Color{0, 0, 0, 1})
+					light := info.Color("light", RGBA(1, 1, 1, 1))
+					dark := info.Color("dark", RGBA(0, 0, 0, 1))
 					timeline.Color = append(timeline.Color, [2]Color{light, dark})
 				}
 			}
@@ -804,7 +804,7 @@ func (obj *object) Color(key string, def Color) Color {
 				color.G = parseHex1(str[1:2])
 				color.B = parseHex1(str[2:3])
 				if len(str) == 4 {
-					color.A = parseHex1(str[3:4])
+					color = color.WithAlpha(parseHex1(str[3:4]))
 				} else {
 					color.A = 1
 				}
@@ -813,7 +813,7 @@ func (obj *object) Color(key string, def Color) Color {
 				color.G = parseHex2(str[2:4])
 				color.B = parseHex2(str[4:6])
 				if len(str) == 8 {
-					color.A = parseHex2(str[6:8])
+					color = color.WithAlpha(parseHex2(str[6:8]))
 				} else {
 					color.A = 1
 				}
