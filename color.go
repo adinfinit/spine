@@ -39,20 +39,26 @@ func (c Color) RGBA() (r, g, b, a uint32) {
 	return u32(c.R), u32(c.G), u32(c.B), u32(c.A)
 }
 
-// Float32 returns alpha premultiplied color components
-func (c Color) Float32() (r, g, b, a float32) {
-	return c.R * c.A, c.G * c.A, c.B * c.A, c.A
-}
-func (c Color) Float64() (r, g, b, a float64) {
-	return float64(c.R * c.A), float64(c.G * c.A), float64(c.B * c.A), float64(c.A)
+// NRGBA32 returns alpha non-premultiplied color components
+func (c Color) NRGBA32() (r, g, b, a float32) {
+	return c.R, c.G, c.B, c.A
 }
 
-func (c Color) RGB64() (r, g, b float64) {
-	return float64(c.R), float64(c.G), float64(c.B)
+// NRGBA64 returns alpha non-premultiplied color components
+func (c Color) NRGBA64() (r, g, b, a float64) {
+	return float64(c.R), float64(c.G), float64(c.B), float64(c.A)
 }
+
+// RGBA32 returns alpha premultiplied color components
+func (c Color) RGBA32() (r, g, b, a float32) {
+	return c.R * c.A, c.G * c.A, c.B * c.A, c.A
+}
+
+// RGBA64 returns alpha premultiplied color components
 func (c Color) RGBA64() (r, g, b, a float64) {
 	return float64(c.R * c.A), float64(c.G * c.A), float64(c.B * c.A), float64(c.A)
 }
+
 func (c Color) String() string {
 	return fmt.Sprintf("RGBA{%.2f,%.2f,%.2f,%.2f}", c.R, c.G, c.B, c.A)
 }
