@@ -218,6 +218,13 @@ func (skel *Skeleton) SetToSetupPose() {
 	for _, constraint := range skel.TransfromConstraints {
 		constraint.Mix = constraint.Data.Mix
 	}
+
+	for _, slot := range skel.Slots {
+		slot.Attachment = skel.Attachment(slot.Data.Index, slot.Data.Attachment)
+		slot.Deform = nil
+		slot.Color = slot.Data.Color
+		slot.Dark = slot.Data.Dark
+	}
 }
 
 func (skel *Skeleton) Update() {
