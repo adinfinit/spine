@@ -130,10 +130,6 @@ func (transform Transform) Affine() Affine {
 	}
 }
 
-func (a Affine) Components() (m00, m01, m02, m10, m11, m12 float32) {
-	return a.M00, a.M01, a.M02, a.M10, a.M11, a.M12
-}
-
 func (a Affine) Mul(b Affine) Affine {
 	m00 := a.M00*b.M00 + a.M01*b.M10
 	m01 := a.M00*b.M01 + a.M01*b.M11
@@ -170,7 +166,7 @@ func (aff Affine) WeightedTransform(w float32, p Vector) Vector {
 }
 
 // Conversion from an to different formats
-func (a Affine) Row() [6]float32 {
+func (a Affine) Row32() [6]float32 {
 	return [6]float32{a.M00, a.M01, a.M02, a.M10, a.M11, a.M12}
 }
 
@@ -178,10 +174,27 @@ func (a Affine) Row64() [6]float64 {
 	return [6]float64{float64(a.M00), float64(a.M01), float64(a.M02), float64(a.M10), float64(a.M11), float64(a.M12)}
 }
 
-func (a Affine) Col() [6]float32 {
+func (a Affine) Col32() [6]float32 {
 	return [6]float32{a.M00, a.M10, a.M01, a.M11, a.M02, a.M12}
 }
 
 func (a Affine) Col64() [6]float64 {
 	return [6]float64{float64(a.M00), float64(a.M10), float64(a.M01), float64(a.M11), float64(a.M02), float64(a.M12)}
+}
+
+// Conversion from an to different formats
+func (a Affine) Row32s() (m00, m01, m02, m10, m11, m12 float32) {
+	return a.M00, a.M01, a.M02, a.M10, a.M11, a.M12
+}
+
+func (a Affine) Row64s() (m00, m01, m02, m10, m11, m12 float64) {
+	return float64(a.M00), float64(a.M01), float64(a.M02), float64(a.M10), float64(a.M11), float64(a.M12)
+}
+
+func (a Affine) Col32s() (m00, m10, m01, m11, m02, m12 float32) {
+	return a.M00, a.M10, a.M01, a.M11, a.M02, a.M12
+}
+
+func (a Affine) Col64s() (m00, m10, m01, m11, m02, m12 float64) {
+	return float64(a.M00), float64(a.M10), float64(a.M01), float64(a.M11), float64(a.M02), float64(a.M12)
 }

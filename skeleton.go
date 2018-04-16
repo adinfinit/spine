@@ -129,6 +129,7 @@ func (skel *Skeleton) ResetUpdateOrder() {
 	total := 0
 	// total += len(skel.IKConstraints)
 	total += len(skel.TransfromConstraints)
+	// total += len(skel.PathConstraints)
 
 	var sortBone func(bone *Bone)
 	sortBone = func(bone *Bone) {

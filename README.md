@@ -9,6 +9,7 @@ Spine is a Go implementation of Spine Runtime.
 # TODO
 
 - [ ] Reset pose properly
+- [ ] Local.Scale
 - [ ] Path attachment
 - [ ] Clipping attachment
 - [ ] EventTimeline
